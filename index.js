@@ -92,6 +92,10 @@ JamaPassthrough.prototype.respond = function(req, res, next) {
     	return user.token == req.headers['x-auth-token'];
     });
 
+    if (!jar) {
+    	res.send(404);
+    }
+
     request({
         url: this.getRestEndpoint() + req.url,
         body: body,
