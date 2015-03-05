@@ -12,7 +12,7 @@ var JamaPassthrough = function(options) {
 	this.setRestEndpoint(options.restEndpoint);
 	this.setAllowedCORS(options.allowedCORS || ['*']);
     this.setPort(options.port || 9999);
-    this.users = {};
+    this.appCookieJars = {};
 }
 
 JamaPassthrough.prototype.setRestEndpoint = function(restEndpoint) {
@@ -54,16 +54,27 @@ JamaPassthrough.prototype.setupServer = function() {
 	this.server.post('/auth', function(req, res) {
 		var guid = Guid.create();
 
+        var appName = req.headers['x-auth-app'];
+        if (!appName) {
+            res.send(404, 'Please provide an application name in the headers as x-auth-app');
+            return;
+        }
+
+        if ( !req.params.username || !req.params.password) {
+            res.send(404, 'Please provide a username and password');
+            return;
+        }
+
 		authenticateUser({
 			username: req.params.username,
 			password: req.params.password
 		}, function(err, jar) {
             if (err) {
-                res.send(404)
+                res.send(404, 'Username or password are incorrect')
                 return;
             }
-            
-			this.users[req.params.username] = {
+
+			this.appCookieJars[appName + '_' + req.params.username] = {
 				jar: jar,
 				token: guid
 			};
@@ -93,8 +104,8 @@ JamaPassthrough.prototype.respond = function(req, res, next) {
     if (method == 'GET') {
         body = qs.parse(req.body || '')
     }
-    var jar = _.find(this.users, function(user) {
-    	return user.token == req.headers['x-auth-token'];
+    var jar = _.find(this.appCookieJars, function(cookieJar) {
+    	return cookieJar.token == req.headers['x-auth-token'];
     });
 
     if (!jar) {
