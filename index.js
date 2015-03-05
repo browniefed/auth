@@ -57,7 +57,12 @@ JamaPassthrough.prototype.setupServer = function() {
 		authenticateUser({
 			username: req.params.username,
 			password: req.params.password
-		}, function(jar) {
+		}, function(err, jar) {
+            if (err) {
+                res.send(404)
+                return;
+            }
+            
 			this.users[req.params.username] = {
 				jar: jar,
 				token: guid

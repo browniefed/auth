@@ -21,7 +21,7 @@ function authenticateUser(user, cb) {
 			gzip: true,
 			jar: j
 		}, function(err, res, body) {
-			cb(j);
+			cb(formRegex.test(body), j);
 		})
 	})
 }
