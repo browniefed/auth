@@ -1,6 +1,7 @@
 var request = require('request');
 var restify = require('restify');
 var Guid = require('guid');
+var _ = require('lodash');
 var authenticateUser = require('./authUser');
 
 var restify = require('restify'),
@@ -57,11 +58,14 @@ JamaPassthrough.prototype.setupServer = function() {
 			username: req.params.username,
 			password: req.params.password
 		}, function(jar) {
-			users[guid] = jar;
+			this.users[req.params.username] = {
+				jar: jar,
+				token: guid
+			};
 			res.send(guid);
-		});
+		}.bind(this));
 
-	});
+	}.bind(this));
 
 	this.server.get(/(.*)/, this.respond.bind(this));
 	this.server.put(/(.*)/, this.respond.bind(this));
@@ -84,15 +88,16 @@ JamaPassthrough.prototype.respond = function(req, res, next) {
     if (method == 'GET') {
         body = qs.parse(req.body || '')
     }
+    var jar = _.find(this.users, function(user) {
+    	return user.token == req.headers['x-auth-token'];
+    });
 
     request({
         url: this.getRestEndpoint() + req.url,
         body: body,
         method: method,
         json: true,
-        headers: {
-            authorization: req.headers.authorization
-        }
+        jar: jar.jar
     }, function(jamaErr, jamaRes, jamaBody) {
         res.send(jamaRes.statusCode, jamaBody);
     })
@@ -127,7 +132,7 @@ function unknownMethodHandler(req, res) {
 }
 
 
-var restEndpoint = 'http://jamaland.com/contour/rest/v1';
+var restEndpoint = 'https://www.jamaland.com/rest/v1';
 var optionalCORS = ['*']; 
 var port = process.env.PORT || 9999;
 
