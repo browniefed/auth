@@ -138,7 +138,7 @@ JamaPassthrough.prototype.start = function() {
 */
 function unknownMethodHandler(req, res) {
   if (req.method.toLowerCase() === 'options') {
-    var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 'Api-Version', 'Origin', 'X-Requested-With', 'Authorization', 'X-Auth-App']; // added Origin & X-Requested-With & **Authorization**
+    var allowHeaders = ['Accept', 'Accept-Version', 'Content-Type', 'Api-Version', 'Origin', 'X-Requested-With', 'Authorization', 'X-Auth-App', 'X-Auth-Token']; // added Origin & X-Requested-With & **Authorization**
 
     if (res.methods.indexOf('OPTIONS') === -1) res.methods.push('OPTIONS');
 
