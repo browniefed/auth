@@ -73,12 +73,14 @@ JamaPassthrough.prototype.setupServer = function() {
                 res.send(404, 'Username or password are incorrect')
                 return;
             }
-
 			this.appCookieJars[appName + '_' + req.params.username] = {
 				jar: jar,
 				token: guid
 			};
-			res.send(guid);
+
+			res.send({
+                token: guid
+            });
 		}.bind(this));
 
 	}.bind(this));
