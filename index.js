@@ -1,6 +1,6 @@
 var request = require('request');
 var restify = require('restify');
-var Guid = require('guid');
+var uuid = require('node-uuid');
 var _ = require('lodash');
 var authenticateUser = require('./authUser');
 
@@ -52,7 +52,7 @@ JamaPassthrough.prototype.setupServer = function() {
 	//This defaults to accepting ALL connections.
 	//In production this should definitely be limited to your production environment
 	this.server.post('/auth', function(req, res) {
-		var guid = Guid.create();
+		var guid = uuid.v4();
 
         var appName = req.headers['x-auth-app'];
         if (!appName) {
