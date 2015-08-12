@@ -85,10 +85,15 @@ JamaPassthrough.prototype.setupServer = function() {
 
 	}.bind(this));
 
-	this.server.get(/(.*)/, this.respond.bind(this));
-	this.server.put(/(.*)/, this.respond.bind(this));
-	this.server.post(/(.*)/, this.respond.bind(this));
-	this.server.del(/(.*)/, this.respond.bind(this));
+    this.server.get(/ui\/internal\/(.*)/,this.respond.bind(this, ''));
+    this.server.put(/ui\/internal\/(.*)/,this.respond.bind(this, ''));
+    this.server.post(/ui\/internal\/(.*)/,this.respond.bind(this, ''));
+    this.server.del(/ui\/internal\/(.*)/,this.respond.bind(this, ''));
+
+	this.server.get(/(.*)/, this.respond.bind(this, 'rest/latest'));
+	this.server.put(/(.*)/, this.respond.bind(this, 'rest/latest'));
+	this.server.post(/(.*)/, this.respond.bind(this, 'rest/latest'));
+	this.server.del(/(.*)/, this.respond.bind(this, 'rest/latest'));
 
 	
 	this.server.listen(this.getPort(), function() {
@@ -99,7 +104,7 @@ JamaPassthrough.prototype.setupServer = function() {
 
 }
 
-JamaPassthrough.prototype.respond = function(req, res, next) {
+JamaPassthrough.prototype.respond = function(restEndpoint, req, res, next) {
     var method = (req.method || 'get').toUpperCase();
 
     var body = req.body;
@@ -115,7 +120,7 @@ JamaPassthrough.prototype.respond = function(req, res, next) {
     }
 
     request({
-        url: this.getRestEndpoint() + req.url,
+        url: this.getRestEndpoint() + restEndpoint + req.url,
         body: body,
         method: method,
         json: true,
@@ -154,7 +159,7 @@ function unknownMethodHandler(req, res) {
 }
 
 
-var restEndpoint = 'https://www.jamaland.com/rest/v1';
+var restEndpoint = 'https://www.jamaland.com/';
 var optionalCORS = ['*']; 
 var port = process.env.PORT || 9999;
 
